@@ -27,7 +27,7 @@ enum class AppScreen(val route:Any, val title:String, val icon: ImageVector) {
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
 
-        NavigationBar {
+        NavigationBar(containerColor = Color.White) {
             AppScreen.entries.forEach { item ->
                 val selected = currentRoute?.endsWith(item.route.toString()) == true
                 val iconColor by animateColorAsState(
@@ -41,8 +41,6 @@ enum class AppScreen(val route:Any, val title:String, val icon: ImageVector) {
                     onClick = {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     },
                     icon = {
