@@ -1,14 +1,18 @@
 package com.zybooks.csc436_scheduling_app.navigation
 
+import android.graphics.Color.rgb
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,18 +29,27 @@ enum class AppScreen(val route:Any, val title:String, val icon: ImageVector) {
 
         NavigationBar {
             AppScreen.entries.forEach { item ->
+                val selected = currentRoute?.endsWith(item.route.toString()) == true
+                val iconColor by animateColorAsState(
+                    targetValue = if (selected) Color(94, 97, 242)
+                                    else Color.Gray
+
+                )
+
                 NavigationBarItem(
-                    selected = currentRoute?.endsWith(item.route.toString()) == true,
+                    selected = selected,
                     onClick = {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.startDestinationId)
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     },
                     icon = {
-                        Icon(item.icon, contentDescription = item.title)
+                        Icon(item.icon, contentDescription = item.title, tint = iconColor)
                     },
                     label = {
-                        Text(item.title)
+                        Text(item.title, color = iconColor)
                     }
                 )
             }
