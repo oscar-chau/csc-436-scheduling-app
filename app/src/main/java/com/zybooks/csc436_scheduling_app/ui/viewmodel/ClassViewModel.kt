@@ -131,6 +131,11 @@ class ClassViewModel(
                     )
                 }
             }
+            is SchoolClassEvent.deleteClass -> {
+                viewModelScope.launch {
+                    dao.deleteClass(event.schoolClass)
+                }
+            }
             // TODO(): get rid of this, only temporary
             else -> {
                 println("TRIED TO USE ${event::class.simpleName}")
