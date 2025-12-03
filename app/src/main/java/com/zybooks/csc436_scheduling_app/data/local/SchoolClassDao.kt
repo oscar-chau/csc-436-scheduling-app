@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface SchoolClassDao {
 
     @Query("SELECT * FROM class")
-    fun getClasses(): Flow<List<SchoolClass>>
+     fun getClasses(): Flow<List<SchoolClass>>
 
     @Upsert
     suspend fun upsertClass(schoolClass: SchoolClass)

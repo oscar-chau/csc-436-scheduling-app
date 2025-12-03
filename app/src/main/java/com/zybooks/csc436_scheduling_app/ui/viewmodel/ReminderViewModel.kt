@@ -97,9 +97,6 @@ class ReminderViewModel(private val dao: ReminderDao): ViewModel() {
                     )
                 }
             }
-            else -> {
-                println("TRIED TO USE ${event::class.simpleName}")
-            }
         }
     }
 }

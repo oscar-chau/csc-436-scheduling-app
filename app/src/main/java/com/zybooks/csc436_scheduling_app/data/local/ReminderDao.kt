@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ReminderDao {
     @Upsert
-    fun upsertReminder(reminder: Reminder)
+    suspend fun upsertReminder(reminder: Reminder)
 
     @Delete
-    fun deleteReminder(reminder: Reminder)
+    suspend fun deleteReminder(reminder: Reminder)
 
     @Query("DELETE FROM reminder")
-    fun deleteAllReminders()
+    suspend fun deleteAllReminders()
 
     @Query("SELECT * FROM reminder")
-    fun getAllReminders(): Flow<List<Reminder>>
+     fun getAllReminders(): Flow<List<Reminder>>
 }
