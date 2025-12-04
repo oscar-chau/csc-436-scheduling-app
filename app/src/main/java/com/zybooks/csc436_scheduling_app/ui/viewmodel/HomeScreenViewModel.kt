@@ -10,6 +10,7 @@ import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Date
 
 class HomeScreenViewModel(private val schoolClassDao: SchoolClassDao, private val reminderDao: ReminderDao): ViewModel() {
@@ -21,16 +22,20 @@ class HomeScreenViewModel(private val schoolClassDao: SchoolClassDao, private va
         val classes = schoolClassDao.getClasses().first()
 
         return classes.filter{ schoolClass ->
-            schoolClass.days.days.contains(today.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() })
+            schoolClass.days.days.contains(today.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }) && schoolClass.startDate <= Date() && schoolClass.endDate >= Date()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun remindersToday(): List<Reminder> {
-        val today = LocalDate.now()
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        val todayString = dateFormat.format(Date())
 
         val reminders = reminderDao.getAllReminders().first()
 
-        return reminders
+        return reminders.filter { reminder ->
+            val reminderString = dateFormat.format(reminder.date)
+            reminderString == todayString
+        }
     }
 }
