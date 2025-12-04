@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
+import com.zybooks.csc436_scheduling_app.ui.component.AddItemDialog
 import com.zybooks.csc436_scheduling_app.ui.component.QuickAddButton
 import com.zybooks.csc436_scheduling_app.ui.component.StatBox
 import com.zybooks.csc436_scheduling_app.ui.components.ReminderCard
@@ -32,6 +32,11 @@ fun Home(vm: HomeScreenViewModel) {
 
     var classes by remember { mutableStateOf<List<SchoolClass>>(emptyList()) }
     var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
+
+    // Popup dialog states
+    var showAddClass by remember { mutableStateOf(false) }
+    var showAddTask by remember { mutableStateOf(false) }
+    var showAddReminder by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         classes = vm.classesToday()
@@ -77,7 +82,7 @@ fun Home(vm: HomeScreenViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Classes Today List
+        // Classes + Reminders Today List
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -91,7 +96,6 @@ fun Home(vm: HomeScreenViewModel) {
                 ReminderCard(reminder = rm)
             }
         }
-
 
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -113,20 +117,50 @@ fun Home(vm: HomeScreenViewModel) {
             QuickAddButton(
                 icon = Icons.Default.Star,
                 label = "Class",
-                onClick = { }
+                onClick = { showAddClass = true }
             )
 
             QuickAddButton(
                 icon = Icons.AutoMirrored.Filled.List,
                 label = "Task",
-                onClick = { }
+                onClick = { showAddTask = true }
             )
 
             QuickAddButton(
                 icon = Icons.Default.Notifications,
                 label = "Reminder",
-                onClick = { }
+                onClick = { showAddReminder = true }
             )
+        }
+    }
+
+    if (showAddClass) {
+        AddItemDialog(
+            title = "Add Class",
+            onDismiss = { showAddClass = false }
+        ) { name, location, startDate, endDate, startTime, endTime, days ->
+            // TODO: Save class
+            println("CLASS ADDED → $name @ $location [$days]")
+        }
+    }
+
+    if (showAddTask) {
+        AddItemDialog(
+            title = "Add Task",
+            onDismiss = { showAddTask = false }
+        ) { name, location, startDate, endDate, startTime, endTime, days ->
+            // TODO: Save task
+            println("TASK ADDED → $name")
+        }
+    }
+
+    if (showAddReminder) {
+        AddItemDialog(
+            title = "Add Reminder",
+            onDismiss = { showAddReminder = false }
+        ) { name, location, startDate, endDate, startTime, endTime, days ->
+            // TODO: Save reminder
+            println("REMINDER ADDED → $name on $startDate")
         }
     }
 }
