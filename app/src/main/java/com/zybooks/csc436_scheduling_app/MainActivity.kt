@@ -15,7 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.zybooks.csc436_scheduling_app.data.local.AppDatabase
+import com.zybooks.csc436_scheduling_app.data.model.Assignment
 import com.zybooks.csc436_scheduling_app.data.model.DayList
+import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import com.zybooks.csc436_scheduling_app.navigation.BottomNavBar
 import com.zybooks.csc436_scheduling_app.navigation.NavGraph
@@ -41,7 +43,10 @@ class MainActivity : ComponentActivity() {
         /* TODO(): REMOVE FUNCTION IN FINAL PRODUCT */
         lifecycleScope.launch {
             deleteAllClasses(db)
+            deleteAllReminders(db)
+            deleteAllAssignments(db)
         }
+
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
@@ -67,7 +72,7 @@ class MainActivity : ComponentActivity() {
 
     /** TEMPORARY!! Just a bunch of functions to mess with for debugging **/
     companion object DebuggingFunctions {
-        suspend fun randomDataIntoClassDatabase(db: AppDatabase) {
+        suspend fun randomDataIntoClassDatabase(db: AppDatabase): SchoolClass {
             val classesDao = db.schoolClassDao
             val datePattern = "yyyy-MM-dd HH:mm:ss"
             val dateFormat = SimpleDateFormat(datePattern, Locale.getDefault())
@@ -82,11 +87,52 @@ class MainActivity : ComponentActivity() {
                 days = DayList(listOf("Monday", "Wednesday", "Friday"))
             )
             classesDao.upsertClass(schoolClass)
+            return schoolClass
         }
 
         suspend fun deleteAllClasses(db: AppDatabase) {
             val classesDao = db.schoolClassDao
             classesDao.deleteAllClasses()
+        }
+
+        suspend fun randomDataIntoReminderDatabase(db: AppDatabase): Reminder {
+            val reminderDao = db.reminderDao
+            val datePattern = "yyyy-MM-dd HH:mm:ss"
+            val dateFormat = SimpleDateFormat(datePattern, Locale.getDefault())
+
+            val reminder = Reminder(
+                title = "Study for exam",
+                location = "Library",
+                date = dateFormat.parse("2025-10-20 00:00:00"),
+                time = dateFormat.parse("2020-01-01 18:00:00")
+            )
+            reminderDao.upsertReminder(reminder)
+            return reminder
+        }
+
+        suspend fun deleteAllReminders(db: AppDatabase) {
+            val reminderDao = db.reminderDao
+            reminderDao.deleteAllReminders()
+        }
+
+        suspend fun randomDataIntoAssignmentDatabase(db: AppDatabase): Assignment {
+            val assignmentDao = db.assignmentDao
+            val datePattern = "yyyy-MM-dd HH:mm:ss"
+            val dateFormat = SimpleDateFormat(datePattern, Locale.getDefault())
+
+            val assignment = Assignment(
+                title = "Milestone 1",
+                date = dateFormat.parse("2025-12-03 00:00:00"),
+                time = dateFormat.parse("2020-01-01 18:00:00"),
+                classId = 1
+            )
+            assignmentDao.upsertAssignment(assignment)
+            return assignment
+        }
+
+        suspend fun deleteAllAssignments(db: AppDatabase) {
+            val assignmentDao = db.assignmentDao
+            assignmentDao.deleteAllAssignments()
         }
     }
 
