@@ -18,7 +18,7 @@ data class Assignment(
     val title: String,
     val date: Date,
     val time: Date,
-    val classId: Int?,
+    val classId: Int,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0
 )

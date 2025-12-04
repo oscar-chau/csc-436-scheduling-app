@@ -13,7 +13,7 @@ import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 @TypeConverters(value = [DateTypeConverter::class, DayListTypeConverter::class])
 @Database(
     entities = [SchoolClass::class, Reminder::class, Assignment::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

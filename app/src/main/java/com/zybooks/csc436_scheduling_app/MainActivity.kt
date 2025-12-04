@@ -25,6 +25,7 @@ import com.zybooks.csc436_scheduling_app.navigation.NavGraph
 import com.zybooks.csc436_scheduling_app.ui.theme.Csc436schedulingappTheme
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.ViewModelFactory
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -50,13 +51,14 @@ class MainActivity : ComponentActivity() {
             deleteAllAssignments(db)
             randomDataIntoClassDatabase(db)
             randomDataIntoReminderDatabase(db)
+            randomDataIntoAssignmentDatabase(db)
         }
 
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
 
-            val viewModelFactory = ViewModelFactory(db.schoolClassDao, db.reminderDao)
+            val viewModelFactory = ViewModelFactory(db.schoolClassDao, db.reminderDao, db.assignmentDao)
             val homeScreenViewModel: HomeScreenViewModel = viewModel(factory = viewModelFactory)
 
             Csc436schedulingappTheme {
@@ -128,11 +130,16 @@ class MainActivity : ComponentActivity() {
             val datePattern = "yyyy-MM-dd HH:mm:ss"
             val dateFormat = SimpleDateFormat(datePattern, Locale.getDefault())
 
+            // grab some class
+            val classesDao = db.schoolClassDao
+            val classes = classesDao.getClasses().first()
+            val schoolClass = classes[0]
+
             val assignment = Assignment(
                 title = "Milestone 1",
-                date = dateFormat.parse("2025-12-03 00:00:00"),
+                date = dateFormat.parse("2025-12-04 00:00:00"),
                 time = dateFormat.parse("2020-01-01 18:00:00"),
-                classId = 1
+                classId = schoolClass.id
             )
             assignmentDao.upsertAssignment(assignment)
             return assignment

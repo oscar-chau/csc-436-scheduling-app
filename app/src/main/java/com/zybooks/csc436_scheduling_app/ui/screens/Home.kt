@@ -17,12 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zybooks.csc436_scheduling_app.data.model.Assignment
 import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
 import com.zybooks.csc436_scheduling_app.ui.component.AddItemDialog
 import com.zybooks.csc436_scheduling_app.ui.component.QuickAddButton
 import com.zybooks.csc436_scheduling_app.ui.component.StatBox
+import com.zybooks.csc436_scheduling_app.ui.components.AssignmentCard
 import com.zybooks.csc436_scheduling_app.ui.components.ReminderCard
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 
@@ -32,6 +34,7 @@ fun Home(vm: HomeScreenViewModel) {
 
     var classes by remember { mutableStateOf<List<SchoolClass>>(emptyList()) }
     var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
+    var assignments by remember { mutableStateOf<Map<Assignment, SchoolClass>>(emptyMap()) }
 
     // Popup dialog states
     var showAddClass by remember { mutableStateOf(false) }
@@ -46,8 +49,14 @@ fun Home(vm: HomeScreenViewModel) {
         reminders = vm.remindersToday()
     }
 
+    LaunchedEffect(Unit) {
+        assignments = vm.assignmentsToday()
+    }
+
+
+
     val classCount = classes.size
-    val taskCount = 4          // TODO pull real data
+    val taskCount = assignments.size
     val reminderCount = reminders.size
 
     Column(
@@ -94,6 +103,10 @@ fun Home(vm: HomeScreenViewModel) {
 
             items(reminders) { rm ->
                 ReminderCard(reminder = rm)
+            }
+
+            items(assignments.keys.toList()) { assignment ->
+                AssignmentCard(assignment = assignment, schoolClass = assignments[assignment]!!)
             }
         }
 
@@ -163,4 +176,9 @@ fun Home(vm: HomeScreenViewModel) {
             println("REMINDER ADDED → $name on $startDate")
         }
     }
+}
+
+@Composable
+fun AssignmentCard(assignment: Assignment, schoolClass: SchoolClass?) {
+    TODO("Not yet implemented")
 }
