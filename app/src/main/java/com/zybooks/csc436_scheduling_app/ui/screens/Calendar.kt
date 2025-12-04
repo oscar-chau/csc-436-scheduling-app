@@ -38,6 +38,8 @@ fun Calendar(vm: HomeScreenViewModel) {
     var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
     var assignments by remember { mutableStateOf<Map<Assignment, SchoolClass>>(emptyMap()) }
 
+    /**
+     * THIS DOESNT WORK ANYMORE, USE SAME WAY THE HOME PAGE DOES
     LaunchedEffect(Unit) {
         classes = vm.classesToday()
     }
@@ -49,6 +51,7 @@ fun Calendar(vm: HomeScreenViewModel) {
     LaunchedEffect(Unit) {
         assignments = vm.assignmentsToday()
     }
+    **/
 
     Column(
         modifier = Modifier

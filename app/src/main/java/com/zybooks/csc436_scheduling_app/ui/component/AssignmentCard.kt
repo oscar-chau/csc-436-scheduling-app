@@ -69,7 +69,7 @@ fun AssignmentCard(
                     .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "Assignment",
+                        text = "Task",
                         color = Color(rgb(75, 174, 105)), // darker green text
                         fontSize = 12.sp,
                     )

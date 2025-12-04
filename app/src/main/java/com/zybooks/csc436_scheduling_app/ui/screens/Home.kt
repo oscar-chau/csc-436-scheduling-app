@@ -2,12 +2,17 @@ package com.zybooks.csc436_scheduling_app.ui.screens
 
 import android.graphics.Color.rgb
 import android.os.Build
-import android.widget.Space
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -15,26 +20,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.zybooks.csc436_scheduling_app.data.model.Assignment
-import com.zybooks.csc436_scheduling_app.data.model.Reminder
-import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
-import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zybooks.csc436_scheduling_app.ui.component.AddItemDialog
 import com.zybooks.csc436_scheduling_app.ui.component.QuickAddButton
 import com.zybooks.csc436_scheduling_app.ui.component.StatBox
 import com.zybooks.csc436_scheduling_app.ui.components.AssignmentCard
+import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
 import com.zybooks.csc436_scheduling_app.ui.components.ReminderCard
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 import java.time.LocalDate
@@ -44,28 +48,14 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun Home(vm: HomeScreenViewModel) {
 
-    var classes by remember { mutableStateOf<List<SchoolClass>>(emptyList()) }
-    var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
-    var assignments by remember { mutableStateOf<Map<Assignment, SchoolClass>>(emptyMap()) }
+    val classes by vm.classesToday.collectAsStateWithLifecycle()
+    val reminders by vm.remindersToday.collectAsStateWithLifecycle()
+    val assignments by vm.assignmentsToday.collectAsStateWithLifecycle()
 
     // Popup dialog states
     var showAddClass by remember { mutableStateOf(false) }
     var showAddTask by remember { mutableStateOf(false) }
     var showAddReminder by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        classes = vm.classesToday()
-    }
-
-    LaunchedEffect(Unit) {
-        reminders = vm.remindersToday()
-    }
-
-    LaunchedEffect(Unit) {
-        assignments = vm.assignmentsToday()
-    }
-
-
 
     val classCount = classes.size
     val taskCount = assignments.size
@@ -151,23 +141,25 @@ fun Home(vm: HomeScreenViewModel) {
             }
         }
 
-        Text(
-            text = "Upcoming",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(start = 13.dp, top = 12.dp, bottom = 5.dp)
-        )
+        if (!(classes.isEmpty() && reminders.isEmpty() && assignments.isEmpty())) {
+            Text(
+                text = "Upcoming",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 13.dp, top = 12.dp, bottom = 5.dp)
+            )
 
-        // Classes + Reminders Today List
-        classes.forEach { sc ->
-            ClassCard(schoolClass = sc)
-        }
-        reminders.forEach { rm ->
-            ReminderCard(reminder = rm)
-        }
-        assignments.keys.toList().forEach { assignment ->
-            AssignmentCard(assignment = assignment, schoolClass = assignments[assignment]!!)
+            // Classes + Reminders Today List
+            classes.forEach { sc ->
+                ClassCard(schoolClass = sc)
+            }
+            reminders.forEach { rm ->
+                ReminderCard(reminder = rm)
+            }
+            assignments.keys.toList().forEach { assignment ->
+                AssignmentCard(assignment = assignment, schoolClass = assignments[assignment]!!)
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth()
