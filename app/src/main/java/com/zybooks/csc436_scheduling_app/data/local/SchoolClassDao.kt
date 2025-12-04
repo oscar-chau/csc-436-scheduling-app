@@ -21,4 +21,7 @@ interface SchoolClassDao {
 
     @Query("DELETE FROM class")
     suspend fun deleteAllClasses()
+
+    @Query("SELECT * FROM class where id = :id")
+    suspend fun getClassById(id: Int): SchoolClass
 }
