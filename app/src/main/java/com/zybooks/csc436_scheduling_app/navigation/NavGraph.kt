@@ -28,7 +28,7 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues, home
             Home(homeVm)
         }
         composable<Routes.Calendar> {
-            Calendar()
+            Calendar(homeVm)
         }
     }
 }

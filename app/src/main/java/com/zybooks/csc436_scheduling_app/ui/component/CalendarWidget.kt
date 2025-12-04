@@ -34,10 +34,10 @@ public fun CalendarWidget(modifier: Modifier = Modifier) {
     val todayMonth = todayCal.get(Calendar.MONTH) // 0-based
     val todayDay = todayCal.get(Calendar.DAY_OF_MONTH)
 
-    // state: current shown year/month
     val monthState = remember { mutableStateOf(Pair(todayYear, todayMonth)) }
-    // selected: Triple(year, month, day) or null
-    val selected = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
+    val selected = remember {
+        mutableStateOf(Triple(todayYear, todayMonth, todayDay))
+    }
 
     val (year, month) = monthState.value
 
@@ -174,17 +174,6 @@ public fun CalendarWidget(modifier: Modifier = Modifier) {
                     }
                 }
             }
-        }
-
-        // Optional: show selected date below
-        val sel = selected.value
-        if (sel != null) {
-            val selMonthName = DateFormatSymbols.getInstance(Locale.getDefault()).months[sel.second]
-            Text(
-                text = "Selected: $selMonthName ${sel.third}, ${sel.first}",
-                modifier = Modifier.padding(top = 12.dp),
-                fontSize = 14.sp
-            )
         }
     }
 }
