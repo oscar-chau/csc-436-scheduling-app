@@ -18,10 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
 import com.zybooks.csc436_scheduling_app.ui.component.QuickAddButton
 import com.zybooks.csc436_scheduling_app.ui.component.StatBox
+import com.zybooks.csc436_scheduling_app.ui.components.ReminderCard
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -29,14 +31,19 @@ import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 fun Home(vm: HomeScreenViewModel) {
 
     var classes by remember { mutableStateOf<List<SchoolClass>>(emptyList()) }
+    var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         classes = vm.classesToday()
     }
 
+    LaunchedEffect(Unit) {
+        reminders = vm.remindersToday()
+    }
+
     val classCount = classes.size
     val taskCount = 4          // TODO pull real data
-    val reminderCount = 2      // TODO pull real data
+    val reminderCount = reminders.size
 
     Column(
         modifier = Modifier
@@ -79,7 +86,12 @@ fun Home(vm: HomeScreenViewModel) {
             items(classes) { sc ->
                 ClassCard(schoolClass = sc)
             }
+
+            items(reminders) { rm ->
+                ReminderCard(reminder = rm)
+            }
         }
+
 
         Row(
             modifier = Modifier.fillMaxWidth()

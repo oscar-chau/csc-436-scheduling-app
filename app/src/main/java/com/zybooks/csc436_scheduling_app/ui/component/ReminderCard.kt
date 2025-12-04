@@ -26,16 +26,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun ClassCard(
-    schoolClass: SchoolClass,
+fun ReminderCard(
+    reminder: Reminder,
     onClick: () -> Unit = {}
 ) {
     Card(
@@ -55,28 +55,28 @@ fun ClassCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = schoolClass.name,
+                    text = reminder.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color(0, 0, 0)
                 )
 
                 Box(modifier = Modifier.
-                            background(
-                                color = Color(rgb(216, 236, 255)), // light blue
-                                shape = RoundedCornerShape(12.dp)
-                            )
+                background(
+                    color = Color(rgb(251, 245, 255)), // light purple
+                    shape = RoundedCornerShape(12.dp)
+                )
                     .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "Class",
-                        color = Color(rgb(38, 101, 232)), // darker blue text
+                        text = "Reminder",
+                        color = Color(rgb(149, 54, 237)), // darker purple text
                         fontSize = 12.sp,
                     )
                 }
 
             }
 
-            schoolClass.location?.let {
+            reminder.location?.let {
                 Text(
                     text = "$it",
                     style = MaterialTheme.typography.bodyMedium
@@ -86,8 +86,7 @@ fun ClassCard(
             Spacer(modifier = Modifier.height(3.dp))
 
             val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
-            val start = timeFormat.format(schoolClass.startTime)
-            val end = timeFormat.format(schoolClass.endTime)
+            val start = timeFormat.format(reminder.time)
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -98,7 +97,7 @@ fun ClassCard(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
-                    text = "$start - $end",
+                    text = "$start",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

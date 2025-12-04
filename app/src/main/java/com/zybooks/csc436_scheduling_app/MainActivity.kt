@@ -45,14 +45,18 @@ class MainActivity : ComponentActivity() {
 
         /* TODO(): REMOVE FUNCTION IN FINAL PRODUCT */
         lifecycleScope.launch {
+            deleteAllClasses(db)
+            deleteAllReminders(db)
+            deleteAllAssignments(db)
             randomDataIntoClassDatabase(db)
+            randomDataIntoReminderDatabase(db)
         }
 
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
 
-            val viewModelFactory = ViewModelFactory(db.schoolClassDao)
+            val viewModelFactory = ViewModelFactory(db.schoolClassDao, db.reminderDao)
             val homeScreenViewModel: HomeScreenViewModel = viewModel(factory = viewModelFactory)
 
             Csc436schedulingappTheme {
@@ -107,7 +111,7 @@ class MainActivity : ComponentActivity() {
             val reminder = Reminder(
                 title = "Study for exam",
                 location = "Library",
-                date = dateFormat.parse("2025-10-20 00:00:00"),
+                date = dateFormat.parse("2025-12-04 00:00:00"),
                 time = dateFormat.parse("2020-01-01 18:00:00")
             )
             reminderDao.upsertReminder(reminder)
