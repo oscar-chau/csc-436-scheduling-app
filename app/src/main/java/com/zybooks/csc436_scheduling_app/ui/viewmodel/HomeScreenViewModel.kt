@@ -8,6 +8,7 @@ import com.zybooks.csc436_scheduling_app.data.local.AssignmentDao
 import com.zybooks.csc436_scheduling_app.data.local.ReminderDao
 import com.zybooks.csc436_scheduling_app.data.local.SchoolClassDao
 import com.zybooks.csc436_scheduling_app.data.model.Assignment
+import com.zybooks.csc436_scheduling_app.data.model.DayList
 import com.zybooks.csc436_scheduling_app.data.model.Reminder
 import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Date
 
@@ -23,39 +25,85 @@ class HomeScreenViewModel(
     private val reminderDao: ReminderDao,
     private val assignmentDao: AssignmentDao
 ) : ViewModel() {
+    fun addClass(
+        name: String,
+        location: String?,
+        startDate: Date?,
+        endDate: Date?,
+        startTime: Date?,
+        endTime: Date?,
+        days: DayList
+    ) {
+        val schoolClass = SchoolClass(
+            name = name,
+            location = location,
+            startDate = startDate ?: Date(),
+            endDate = endDate ?: Date(),
+            startTime = startTime ?: Date(),
+            endTime = endTime ?: Date(),
+            days = days
+        )
 
+        viewModelScope.launch {
+            schoolClassDao.upsertClass(schoolClass)
+        }
+    }
+
+    // Classes Today
     @RequiresApi(Build.VERSION_CODES.O)
     val classesToday: StateFlow<List<SchoolClass>> = schoolClassDao.getClasses()
         .map { classes ->
             val today = LocalDate.now()
+
+            val todayFullName = today.dayOfWeek
+                .name
+                .lowercase()
+                .replaceFirstChar { it.uppercaseChar() }
+
+            val dayMap = mapOf(
+                "Mon" to "Monday",
+                "Tue" to "Tuesday",
+                "Wed" to "Wednesday",
+                "Thu" to "Thursday",
+                "Fri" to "Friday",
+                "Sat" to "Saturday",
+                "Sun" to "Sunday"
+            )
+
             classes.filter { schoolClass ->
-                schoolClass.days.days.contains(today.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }) && schoolClass.startDate <= Date() && schoolClass.endDate >= Date()
+                val converted = schoolClass.days.days.map { dayMap[it] ?: it }
+
+                converted.contains(todayFullName) &&
+                        schoolClass.startDate <= Date() &&
+                        schoolClass.endDate >= Date()
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // Reminders Today
     @RequiresApi(Build.VERSION_CODES.O)
-    val remindersToday: StateFlow<List<Reminder>> = reminderDao.getAllReminders()
-        .map { reminders ->
-            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            val todayString = dateFormat.format(Date())
-            reminders.filter { reminder ->
-                val reminderString = dateFormat.format(reminder.date)
-                reminderString == todayString
+    val remindersToday: StateFlow<List<Reminder>> =
+        reminderDao.getAllReminders()
+            .map { reminders ->
+                val format = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                val todayString = format.format(Date())
+                reminders.filter { reminder ->
+                    format.format(reminder.date) == todayString
+                }
             }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+
+    // Assignments Today
     @RequiresApi(Build.VERSION_CODES.O)
     val assignmentsToday: StateFlow<Map<Assignment, SchoolClass>> =
         assignmentDao.getAllAssignments()
             .map { assignments ->
-                val dateFormat =
-                    java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                val todayString = dateFormat.format(Date())
+                val format = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                val todayString = format.format(Date())
+
                 assignments.filter { assignment ->
-                    val assignmentDate = dateFormat.format(assignment.date)
-                    assignmentDate == todayString
+                    format.format(assignment.date) == todayString
                 }
             }
             .combine(schoolClassDao.getClasses()) { assignments, classes ->
