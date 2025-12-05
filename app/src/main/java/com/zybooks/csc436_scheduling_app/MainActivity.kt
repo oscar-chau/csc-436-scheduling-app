@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -42,6 +43,10 @@ class MainActivity : ComponentActivity() {
             ).fallbackToDestructiveMigration(true).build()
     }
 
+    private val viewModelFactory by lazy {
+        ViewModelFactory(db.schoolClassDao, db.reminderDao, db.assignmentDao)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +67,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            val viewModelFactory = ViewModelFactory(db.schoolClassDao, db.reminderDao, db.assignmentDao)
             val homeScreenViewModel: HomeScreenViewModel = viewModel(factory = viewModelFactory)
             val calendarViewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
 

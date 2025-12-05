@@ -87,8 +87,7 @@ fun AssignmentCard(
             Spacer(modifier = Modifier.height(3.dp))
 
             val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
-            val start = timeFormat.format(schoolClass.startTime)
-            val end = timeFormat.format(schoolClass.endTime)
+            val start = timeFormat.format(assignment.time)
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -99,7 +98,7 @@ fun AssignmentCard(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
-                    text = "$start - $end",
+                    text = "$start",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

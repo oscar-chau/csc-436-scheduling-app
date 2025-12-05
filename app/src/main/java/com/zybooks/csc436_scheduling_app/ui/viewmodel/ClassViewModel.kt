@@ -33,7 +33,7 @@ class ClassViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
     private val _state = MutableStateFlow(ClassState())
 
-    private val state = combine(_state, _sortType, _classes) { state, sortType, classes ->
+    val state = combine(_state, _sortType, _classes) { state, sortType, classes ->
         state.copy(
             classes = classes,
             sortType = sortType

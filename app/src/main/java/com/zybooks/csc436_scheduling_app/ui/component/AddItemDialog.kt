@@ -229,6 +229,16 @@ fun AddItemDialog(
                 val combinedStart = combineDateAndTime(parsedStartDate, parsedStartTime)
                 val combinedEnd = combineDateAndTime(parsedEndDate, parsedEndTime)
 
+                val dayNameMapping = mapOf(
+                    "Mon" to "Monday",
+                    "Tue" to "Tuesday",
+                    "Wed" to "Wednesday",
+                    "Thu" to "Thursday",
+                    "Fri" to "Friday",
+                    "Sat" to "Saturday",
+                    "Sun" to "Sunday"
+                )
+
                 onSubmit(
                     name,
                     location,
@@ -236,7 +246,7 @@ fun AddItemDialog(
                     parsedEndDate,
                     combinedStart,
                     combinedEnd,
-                    selectedDays.toList(),
+                    selectedDays.mapNotNull { dayNameMapping[it] },
                     selectedClassId
                 )
 

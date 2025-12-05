@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.ZoneId
@@ -34,45 +33,45 @@ class CalendarViewModel(
         _selectedDate.value = date
     }
 
-    val classesForSelectedDate: StateFlow<List<SchoolClass>> = selectedDate.flatMapLatest { date ->
-        schoolClassDao.getClasses().combine(selectedDate) { classes, selectedDate ->
-            val dateAsDate = Date.from(selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+    val classesForSelectedDate: StateFlow<List<SchoolClass>> =
+        combine(schoolClassDao.getClasses(), selectedDate) { classes, date ->
+            val dateAsDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
             classes.filter { schoolClass ->
-                schoolClass.days.days.contains(selectedDate.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }) &&
+                schoolClass.days.days.contains(date.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }) &&
                         !schoolClass.startDate.after(dateAsDate) && !schoolClass.endDate.before(dateAsDate)
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val remindersForSelectedDate: StateFlow<List<Reminder>> = selectedDate.flatMapLatest { date ->
-        reminderDao.getAllReminders().combine(selectedDate) { reminders, selectedDate ->
+    val remindersForSelectedDate: StateFlow<List<Reminder>> =
+        combine(reminderDao.getAllReminders(), selectedDate) { reminders, date ->
             val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            val selectedDateString = dateFormat.format(Date.from(selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant()))
+            val selectedDateString = dateFormat.format(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()))
             reminders.filter { reminder ->
                 val reminderString = dateFormat.format(reminder.date)
                 reminderString == selectedDateString
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val assignmentsForSelectedDate: StateFlow<Map<Assignment, SchoolClass>> =
-        selectedDate.flatMapLatest { date ->
-            assignmentDao.getAllAssignments().combine(schoolClassDao.getClasses()) { assignments, classes ->
-                val dateFormat =
-                    java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                val selectedDateString = dateFormat.format(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()))
+        combine(
+            assignmentDao.getAllAssignments(),
+            schoolClassDao.getClasses(),
+            selectedDate
+        ) { assignments, classes, date ->
+            val dateFormat =
+                java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            val selectedDateString = dateFormat.format(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()))
 
-                val assignmentsForDate = assignments.filter { assignment ->
-                    val assignmentDate = dateFormat.format(assignment.date)
-                    assignmentDate == selectedDateString
-                }
-
-                val classMap = classes.associateBy { it.id }
-                assignmentsForDate.mapNotNull { assignment ->
-                    classMap[assignment.classId]?.let { schoolClass ->
-                        assignment to schoolClass
-                    }
-                }.toMap()
+            val assignmentsForDate = assignments.filter { assignment ->
+                val assignmentDate = dateFormat.format(assignment.date)
+                assignmentDate == selectedDateString
             }
+
+            val classMap = classes.associateBy { it.id }
+            assignmentsForDate.mapNotNull { assignment ->
+                classMap[assignment.classId]?.let { schoolClass ->
+                    assignment to schoolClass
+                }
+            }.toMap()
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 }
