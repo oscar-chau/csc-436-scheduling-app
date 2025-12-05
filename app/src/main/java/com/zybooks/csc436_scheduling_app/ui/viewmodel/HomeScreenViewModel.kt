@@ -25,6 +25,9 @@ private val schoolClassDao: SchoolClassDao,
 private val reminderDao: ReminderDao,
 private val assignmentDao: AssignmentDao
 ) : ViewModel() {
+    val allClasses: StateFlow<List<SchoolClass>> =
+        schoolClassDao.getClasses()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun addClass(
         name: String,

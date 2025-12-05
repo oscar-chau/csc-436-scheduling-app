@@ -29,30 +29,34 @@ import com.zybooks.csc436_scheduling_app.ui.components.AssignmentCard
 import com.zybooks.csc436_scheduling_app.ui.components.ClassCard
 import com.zybooks.csc436_scheduling_app.ui.components.ReminderCard
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
+import com.zybooks.csc436_scheduling_app.data.model.DayList
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.zybooks.csc436_scheduling_app.data.model.DayList
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(vm: HomeScreenViewModel) {
 
-    val classes by vm.classesToday.collectAsStateWithLifecycle()
+    // Today-only data for "Upcoming" section
+    val todayClasses by vm.classesToday.collectAsStateWithLifecycle()
     val reminders by vm.remindersToday.collectAsStateWithLifecycle()
     val assignments by vm.assignmentsToday.collectAsStateWithLifecycle()
 
+    // All classes (for Add Task dialog)
+    val allClasses by vm.allClasses.collectAsStateWithLifecycle()
+
+    // Dialog states
     var showAddClass by remember { mutableStateOf(false) }
     var showAddTask by remember { mutableStateOf(false) }
     var showAddReminder by remember { mutableStateOf(false) }
 
-    val classCount = classes.size
+    val classCount = todayClasses.size
     val taskCount = assignments.size
     val reminderCount = reminders.size
 
     val today = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("MMM d',' yyyy")
     val formattedDate = today.format(formatter)
-
     val scrollState = rememberScrollState()
 
     Column(
@@ -125,7 +129,10 @@ fun Home(vm: HomeScreenViewModel) {
             }
         }
 
-        if (!(classes.isEmpty() && reminders.isEmpty() && assignments.isEmpty())) {
+        // =============================
+        // UPCOMING SECTION
+        // =============================
+        if (!(todayClasses.isEmpty() && reminders.isEmpty() && assignments.isEmpty())) {
             Text(
                 text = "Upcoming",
                 fontSize = 18.sp,
@@ -134,7 +141,7 @@ fun Home(vm: HomeScreenViewModel) {
                     .padding(start = 14.dp, top = 12.dp, bottom = 5.dp)
             )
 
-            classes.forEach { sc ->
+            todayClasses.forEach { sc ->
                 ClassCard(schoolClass = sc)
             }
 
@@ -150,6 +157,9 @@ fun Home(vm: HomeScreenViewModel) {
             }
         }
 
+        // =============================
+        // QUICK ADD
+        // =============================
         Text(
             text = "Quick Add",
             fontSize = 18.sp,
@@ -193,7 +203,11 @@ fun Home(vm: HomeScreenViewModel) {
         }
     }
 
-    // CLASS
+    // =============================
+    // DIALOGS
+    // =============================
+
+    // ADD CLASS
     if (showAddClass) {
         AddItemDialog(
             title = "Add Class",
@@ -207,19 +221,18 @@ fun Home(vm: HomeScreenViewModel) {
                 endDate = endDate,
                 startTime = startTime,
                 endTime = endTime,
-                days = DayList(days)   // ← FIX HERE
+                days = DayList(days)
             )
 
             showAddClass = false
         }
     }
 
-
-    // TASK
+    // ADD TASK — now uses ALL classes
     if (showAddTask) {
         AddItemDialog(
             title = "Add Task",
-            classes = classes,
+            classes = allClasses,   // <-- UPDATED HERE
             onDismiss = { showAddTask = false }
         ) { name, _, dueDate, _, dueTime, _, _, classId ->
 
@@ -234,9 +247,7 @@ fun Home(vm: HomeScreenViewModel) {
         }
     }
 
-
-
-    // REMINDER
+    // ADD REMINDER
     if (showAddReminder) {
         AddItemDialog(
             title = "Add Reminder",
@@ -253,5 +264,4 @@ fun Home(vm: HomeScreenViewModel) {
             showAddReminder = false
         }
     }
-
 }
