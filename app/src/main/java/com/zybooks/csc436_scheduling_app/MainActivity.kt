@@ -1,9 +1,11 @@
 package com.zybooks.csc436_scheduling_app
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import com.zybooks.csc436_scheduling_app.data.model.SchoolClass
 import com.zybooks.csc436_scheduling_app.navigation.BottomNavBar
 import com.zybooks.csc436_scheduling_app.navigation.NavGraph
 import com.zybooks.csc436_scheduling_app.ui.theme.Csc436schedulingappTheme
+import com.zybooks.csc436_scheduling_app.ui.viewmodel.CalendarViewModel
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.HomeScreenViewModel
 import com.zybooks.csc436_scheduling_app.ui.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.first
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
             ).fallbackToDestructiveMigration(true).build()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +64,7 @@ class MainActivity : ComponentActivity() {
 
             val viewModelFactory = ViewModelFactory(db.schoolClassDao, db.reminderDao, db.assignmentDao)
             val homeScreenViewModel: HomeScreenViewModel = viewModel(factory = viewModelFactory)
+            val calendarViewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
 
             Csc436schedulingappTheme {
                 Scaffold(
@@ -74,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = { BottomNavBar(navController) }
                 ) { innerPadding ->
-                    NavGraph(navController, innerPadding, homeScreenViewModel)
+                    NavGraph(navController, innerPadding, homeScreenViewModel, calendarViewModel)
                 }
             }
         }
